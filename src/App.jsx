@@ -9,27 +9,44 @@ function App() {
       : `console.log("Hello CodeNexus");`;
   });
 
+  useEffect(() => {
+    fetch("http://localhost:3000/api/status")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Backend response:", data);
+      })
+      .catch((error) => {
+        console.error("Error connecting to backend:", error);
+      });
+  }, []);
+
+
   const [output, setOutput] = useState("");
 
   useEffect(() => {
     localStorage.setItem("codenexus-code", code);
   }, [code]);
 
-  const runCode = () => {
+  const runCode = async () => {
+    console.log("Run button clicked");
     try {
-      const logs = [];
-      const originalLog = console.log;
+      const response = await fetch("http://localhost:3000/api/run", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code }),
+      });
 
-      console.log = (...args) => {
-        logs.push(args.join(" "));
-      };
+      const data = await response.json();
 
-      eval(code);
-
-      console.log = originalLog;
-      setOutput(logs.join("\n"));
+      if(response.ok) {
+        setOutput(data.output);
+      } else {
+        setOutput(data.error);
+      }
     } catch (error) {
-      setOutput(error.toString());
+      setOutput("Error connecting to server");
     }
   };
 
