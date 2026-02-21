@@ -1,92 +1,153 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
+import "./App.css";
 
 function App() {
-  const [code, setCode] = useState(() => {
-    const savedCode = localStorage.getItem("codenexus-code");
-    return savedCode !== null
-      ? savedCode
-      : `console.log("Hello CodeNexus");`;
-  });
+  const [code, setCode] = useState(`console.log("Hello CodeNexus");`);
+  const [output, setOutput] = useState("");
+  const [isError, setIsError] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const isInitialLoad = useRef(true);
 
   useEffect(() => {
     fetch("http://localhost:3000/api/status")
       .then((res) => res.json())
-      .then((data) => {
-        console.log("Backend response:", data);
-      })
-      .catch((error) => {
-        console.error("Error connecting to backend:", error);
-      });
+      .then((data) => console.log("Backend response:", data))
+      .catch((error) =>
+        console.error("Error connecting to backend:", error)
+      );
+
+    loadCode();
   }, []);
 
-
-  const [output, setOutput] = useState("");
-
   useEffect(() => {
-    localStorage.setItem("codenexus-code", code);
+    if (isInitialLoad.current) {
+      isInitialLoad.current = false;
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      autoSave();
+    }, 1000);
+
+    return () => clearTimeout(timeout);
   }, [code]);
 
+  const autoSave = async () => {
+    try {
+      setIsSaving(true);
+      await fetch("http://localhost:3000/api/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      setIsSaving(false);
+    } catch (error) {
+      console.error("Auto save failed:", error);
+      setIsSaving(false);
+    }
+  };
+
   const runCode = async () => {
-    console.log("Run button clicked");
+    setOutput("Running...");
+    setIsError(false);
+
     try {
       const response = await fetch("http://localhost:3000/api/run", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code }),
       });
 
       const data = await response.json();
 
-      if(response.ok) {
-        setOutput(data.output);
+      if (response.ok) {
+        setOutput(data.output || "No output");
+        setIsError(false);
       } else {
-        setOutput(data.error);
+        setOutput(data.error || "An error occurred.");
+        setIsError(true);
       }
     } catch (error) {
-      setOutput("Error connecting to server");
+      setOutput("Error: Could not connect to execution server.");
+      setIsError(true);
+    }
+  };
+
+  const loadCode = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/api/load");
+      const data = await response.json();
+      if (data.code) setCode(data.code);
+    } catch (error) {
+      console.error("Error loading code:", error);
+    }
+  };
+
+  const saveCode = async () => {
+    try {
+      setIsSaving(true);
+      const response = await fetch("http://localhost:3000/api/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+
+      const data = await response.json();
+      console.log(data.message);
+      setIsSaving(false);
+    } catch (error) {
+      console.error("Error saving code:", error);
+      setIsSaving(false);
     }
   };
 
   return (
-    <div style={{ 
-      height: "100vh", 
-      width: "100vw",
-      display: "flex",
-      flexDirection: "column"
-    }}>
+    <div className="app-wrapper">
+      <div className="toolbar">
+        <div className="brand-title">CodeNexus Editor</div>
 
-      <button onClick={runCode} style={{ padding: "10px" }}>
-        Run Code
-      </button>
+        {isSaving && <span className="saving-text">Saving...</span>}
 
-      <div style={{ flex: 1 }}>
+        <button onClick={saveCode} className="btn btn-secondary">
+          Save
+        </button>
+
+        <button onClick={runCode} className="btn btn-run">
+          ▶ Run
+        </button>
+      </div>
+
+      <div className="editor-container">
         <Editor
           height="100%"
           width="100%"
           defaultLanguage="javascript"
           theme="vs-dark"
           value={code}
-          onChange={(value) => setCode(value)}
+          onChange={(value) => setCode(value || "")}
+          options={{
+            minimap: { enabled: false },
+            fontSize: 14,
+            padding: { top: 16 },
+            smoothScrolling: true,
+          }}
         />
       </div>
 
-      <div style={{
-        height: "150px",
-        background: "#111",
-        color: "lime",
-        padding: "10px",
-        overflowY: "auto",
-        whiteSpace: "pre-wrap"
-      }}>
-        {output}
+      <div className="terminal-wrapper">
+        <div className="terminal-header">Terminal Output</div>
+        <pre
+          className={`terminal-output ${
+            isError ? "terminal-error" : ""
+          }`}
+        >
+          {output || "Waiting for output..."}
+        </pre>
       </div>
-
     </div>
   );
-
 }
 
 export default App;

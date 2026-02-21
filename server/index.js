@@ -9,6 +9,11 @@ app.use(cors());
 
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  console.log("Received request on /");
+  res.send("CodeNexus backend is running.");
+});
+
 app.post("/api/run", (req, res) => {
   console.log("Request received");
   const { code } = req.body;
@@ -32,9 +37,20 @@ app.post("/api/run", (req, res) => {
 
 });
 
-app.get("/", (req, res) => {
-  console.log("Received request on /");
-  res.send("CodeNexus backend is running.");
+let savedCode ="";
+
+app.post("/api/save", (req, res) => {
+  if(!req.body || !req.body.code){
+    return res.status(400).json({ error: "Code is required" });
+  }
+  const { code } = req.body;
+  savedCode = code;
+
+  res.json({ message: "Code saved successfully." });
+});
+
+app.get("/api/load", (req, res) => {
+  res.json({ code: savedCode });
 });
 
 app.get("/api/status", (req, res) =>{
