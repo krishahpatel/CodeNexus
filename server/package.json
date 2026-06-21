@@ -11,6 +11,10 @@
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.6",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "lib0": "^0.2.117",
+    "ws": "^8.21.0",
+    "y-protocols": "^1.0.7",
+    "yjs": "^13.6.31"
   }
 }

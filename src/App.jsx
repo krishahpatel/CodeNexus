@@ -4,6 +4,7 @@ import "./App.css";
 
 function App() {
   const [code, setCode] = useState(`console.log("Hello CodeNexus");`);
+  const [language, setLanguage] = useState("javascript");
   const [output, setOutput] = useState("");
   const [isError, setIsError] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -11,13 +12,6 @@ function App() {
   const isInitialLoad = useRef(true);
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/status")
-      .then((res) => res.json())
-      .then((data) => console.log("Backend response:", data))
-      .catch((error) =>
-        console.error("Error connecting to backend:", error)
-      );
-
     loadCode();
   }, []);
 
@@ -32,7 +26,7 @@ function App() {
     }, 1000);
 
     return () => clearTimeout(timeout);
-  }, [code]);
+  }, [code, language]);
 
   const autoSave = async () => {
     try {
@@ -40,11 +34,10 @@ function App() {
       await fetch("http://localhost:3000/api/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code, language }),
       });
       setIsSaving(false);
     } catch (error) {
-      console.error("Auto save failed:", error);
       setIsSaving(false);
     }
   };
@@ -57,20 +50,19 @@ function App() {
       const response = await fetch("http://localhost:3000/api/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code, language }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
         setOutput(data.output || "No output");
-        setIsError(false);
       } else {
-        setOutput(data.error || "An error occurred.");
+        setOutput(data.error || "Execution error.");
         setIsError(true);
       }
     } catch (error) {
-      setOutput("Error: Could not connect to execution server.");
+      setOutput("Server connection failed.");
       setIsError(true);
     }
   };
@@ -80,25 +72,22 @@ function App() {
       const response = await fetch("http://localhost:3000/api/load");
       const data = await response.json();
       if (data.code) setCode(data.code);
+      if (data.language) setLanguage(data.language);
     } catch (error) {
-      console.error("Error loading code:", error);
+      console.error("Load failed:", error);
     }
   };
 
   const saveCode = async () => {
     try {
       setIsSaving(true);
-      const response = await fetch("http://localhost:3000/api/save", {
+      await fetch("http://localhost:3000/api/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code, language }),
       });
-
-      const data = await response.json();
-      console.log(data.message);
       setIsSaving(false);
     } catch (error) {
-      console.error("Error saving code:", error);
       setIsSaving(false);
     }
   };
@@ -106,7 +95,18 @@ function App() {
   return (
     <div className="app-wrapper">
       <div className="toolbar">
-        <div className="brand-title">CodeNexus Editor</div>
+        <div className="brand-title">CodeNexus IDE</div>
+
+        <select
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
+          className="language-select"
+        >
+          <option value="javascript">JavaScript</option>
+          <option value="python">Python</option>
+          <option value="c">C</option>
+          <option value="cpp">C++</option>
+        </select>
 
         {isSaving && <span className="saving-text">Saving...</span>}
 
@@ -123,14 +123,13 @@ function App() {
         <Editor
           height="100%"
           width="100%"
-          defaultLanguage="javascript"
+          language={language}
           theme="vs-dark"
           value={code}
           onChange={(value) => setCode(value || "")}
           options={{
             minimap: { enabled: false },
             fontSize: 14,
-            padding: { top: 16 },
             smoothScrolling: true,
           }}
         />
