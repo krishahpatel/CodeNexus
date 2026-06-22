@@ -1,0 +1,109 @@
+.collab-editor {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* ── Presence bar ── */
+.presence-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: #1e1e1e;
+  border-bottom: 1px solid #333;
+  min-height: 34px;
+}
+
+.conn-status {
+  font-size: 11px;
+  margin-right: 8px;
+}
+.conn-status.online  { color: #34d399; }
+.conn-status.offline { color: #888; }
+
+.presence-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border: 1.5px solid;        /* color set inline from user.color */
+  border-radius: 999px;
+  font-size: 12px;
+  color: #ddd;
+  background: #2a2a2a;
+}
+
+.presence-pill .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Join screen ── */
+.join-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 75vh;
+  background: #1e1e1e;
+}
+
+.join-box {
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 10px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 320px;
+  text-align: center;
+  color: #ddd;
+}
+
+.join-box h2 {
+  margin: 0;
+  font-size: 22px;
+  color: #fff;
+}
+
+.join-box p {
+  margin: 0;
+  color: #888;
+  font-size: 13px;
+}
+
+.join-box code {
+  color: #4ecdc4;
+}
+
+.join-input {
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid #555;
+  background: #1e1e1e;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+}
+
+.join-input:focus {
+  border-color: #4ecdc4;
+}
+
+.join-btn {
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  background: #4ecdc4;
+  color: #1e1e1e;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.join-btn:hover {
+  background: #38b2ac;
+}

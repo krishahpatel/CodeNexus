@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import Editor from "@monaco-editor/react";
+import CollaborativeEditor from './CollaborativeEditor';
 import "./App.css";
 
 function App() {
@@ -8,6 +8,7 @@ function App() {
   const [output, setOutput] = useState("");
   const [isError, setIsError] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const roomId = 'test-room';
 
   const isInitialLoad = useRef(true);
 
@@ -29,6 +30,7 @@ function App() {
   }, [code, language]);
 
   const autoSave = async () => {
+    if (!code || !code.trim()) return;
     try {
       setIsSaving(true);
       await fetch("http://localhost:3000/api/save", {
@@ -43,6 +45,7 @@ function App() {
   };
 
   const runCode = async () => {
+    if (!code || !code.trim()) return;
     setOutput("Running...");
     setIsError(false);
 
@@ -120,18 +123,10 @@ function App() {
       </div>
 
       <div className="editor-container">
-        <Editor
-          height="100%"
-          width="100%"
+        <CollaborativeEditor
+          roomId={roomId}
           language={language}
-          theme="vs-dark"
-          value={code}
-          onChange={(value) => setCode(value || "")}
-          options={{
-            minimap: { enabled: false },
-            fontSize: 14,
-            smoothScrolling: true,
-          }}
+          onCodeChange={(value) => setCode(value)}
         />
       </div>
 

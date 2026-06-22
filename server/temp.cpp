@@ -1,1 +1,1 @@
-console.log("Hello CodeNexus");
+print ("Hello World");
