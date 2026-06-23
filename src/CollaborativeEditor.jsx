@@ -9,20 +9,18 @@ const USER_COLORS = ['#ff6b6b', '#4ecdc4', '#ffe66d', '#a78bfa', '#f97316', '#34
 const randomColor = () => USER_COLORS[Math.floor(Math.random() * USER_COLORS.length)];
 
 export default function CollaborativeEditor({ roomId, language = 'javascript', onCodeChange }) {
-  const [userName, setUserName]     = useState('');      // typed name
-  const [joined, setJoined]         = useState(false);   // has user entered their name
-  const [users, setUsers]           = useState([]);
-  const [connected, setConnected]   = useState(false);
+  const [userName, setUserName]   = useState('');
+  const [joined, setJoined]       = useState(false);
+  const [users, setUsers]         = useState([]);
+  const [connected, setConnected] = useState(false);
 
   const docRef      = useRef(null);
   const providerRef = useRef(null);
   const bindingRef  = useRef(null);
   const colorRef    = useRef(randomColor());
 
-  // Only connect AFTER the user has entered their name and clicked Join.
-  // This avoids the window.prompt() Chrome suppression issue entirely.
   useEffect(() => {
-    if (!joined) return; // don't connect until name is entered
+    if (!joined) return;
 
     const ydoc     = new Y.Doc();
     const provider = new WebsocketProvider('ws://localhost:3000', `collab/${roomId}`, ydoc);
@@ -64,11 +62,19 @@ export default function CollaborativeEditor({ roomId, language = 'javascript', o
     bindingRef.current = binding;
 
     if (onCodeChange) {
+      // Fire once immediately so RoomPage's code state isn't empty on first Run.
+      onCodeChange(editor.getValue());
+
+      // Update on every local keystroke.
       editor.onDidChangeModelContent(() => onCodeChange(editor.getValue()));
+
+      // Also update when the Yjs snapshot arrives over WebSocket after mount
+      // (e.g. rejoining a room that already has content).
+      ytext.observe(() => onCodeChange(editor.getValue()));
     }
   }
 
-  // ── Name entry screen ────────────────────────────────────────────────────
+  // ── Name entry screen ──────────────────────────────────────────────────────
   if (!joined) {
     return (
       <div className="join-screen">
@@ -97,7 +103,7 @@ export default function CollaborativeEditor({ roomId, language = 'javascript', o
     );
   }
 
-  // ── Editor screen ────────────────────────────────────────────────────────
+  // ── Editor screen ──────────────────────────────────────────────────────────
   return (
     <div className="collab-editor">
       <div className="presence-bar">

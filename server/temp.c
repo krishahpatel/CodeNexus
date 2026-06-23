@@ -1,5 +1,6 @@
-# include <bits/stdc++.h>
+#include <iostream>
 
-int main(){
-    cout<<"Hello World";
+int main() {
+    std::cout << "Hello, World!" << std::endl;
+    return 0;
 }

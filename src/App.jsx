@@ -5,7 +5,6 @@ import LandingPage from './LandingPage';
 import './App.css';
 
 // ─── Room Page ───────────────────────────────────────────────────────────────
-// Everything that was in App before, now scoped to a specific room.
 function RoomPage() {
   const { roomId } = useParams(); // reads roomId from /room/:roomId in the URL
   const navigate   = useNavigate();
