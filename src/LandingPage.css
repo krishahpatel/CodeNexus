@@ -1,0 +1,94 @@
+.landing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #1e1e1e;
+}
+
+.landing-box {
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 12px;
+  padding: 48px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  min-width: 360px;
+}
+
+.landing-title {
+  margin: 0;
+  font-size: 32px;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.landing-subtitle {
+  margin: 0;
+  color: #888;
+  font-size: 14px;
+}
+
+.btn-create {
+  width: 100%;
+  padding: 12px;
+  background: #4ecdc4;
+  color: #1e1e1e;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-create:hover {
+  background: #38b2ac;
+}
+
+.divider {
+  color: #555;
+  font-size: 13px;
+  width: 100%;
+  text-align: center;
+  border-top: 1px solid #444;
+  padding-top: 20px;
+}
+
+.join-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.join-input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid #555;
+  background: #1e1e1e;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+}
+
+.join-input:focus {
+  border-color: #4ecdc4;
+}
+
+.btn-join {
+  padding: 10px 18px;
+  background: #333;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-join:hover {
+  background: #444;
+}

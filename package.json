@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
+    "nanoid": "^5.1.15",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-router-dom": "^7.18.0",
     "y-monaco": "^0.1.6",
     "y-websocket": "^3.0.0",
     "yjs": "^13.6.31"

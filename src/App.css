@@ -105,3 +105,16 @@ body, html {
   margin: 0;
   white-space: pre-wrap;
 }
+
+.room-id {
+  font-size: 12px;
+  color: #4ecdc4;
+  cursor: pointer;
+  padding: 4px 10px;
+  border: 1px solid #444;
+  border-radius: 6px;
+}
+
+.room-id:hover {
+  background: #2a2a2a;
+}
