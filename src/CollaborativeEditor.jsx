@@ -23,7 +23,7 @@ export default function CollaborativeEditor({ roomId, language = 'javascript', o
     if (!joined) return;
 
     const ydoc     = new Y.Doc();
-    const provider = new WebsocketProvider('ws://localhost:3000', `collab/${roomId}`, ydoc);
+    const provider = new WebsocketProvider(import.meta.env.VITE_BACKEND_WS, `collab/${roomId}`, ydoc);
 
     docRef.current      = ydoc;
     providerRef.current = provider;
@@ -87,7 +87,7 @@ export default function CollaborativeEditor({ roomId, language = 'javascript', o
     }
   }
 
-  // ── Name entry screen ──────────────────────────────────────────────────────
+  // Name entry screen 
   if (!joined && !readOnly) {
     return (
       <div className="join-screen">

@@ -9,7 +9,7 @@ const db = new Database(path.join(__dirname, 'codenexus.db'));
 // Enable WAL mode — better performance for concurrent reads/writes.
 db.pragma('journal_mode = WAL');
 
-// ── Table: room_snapshots ─────────────────────────────────────────────────────
+// Table: room_snapshots 
 // Stores the latest text content of each room's Yjs document.
 // Updated every few seconds while the room is active.
 db.exec(`
@@ -21,7 +21,7 @@ db.exec(`
   )
 `);
 
-// ── Table: execution_history ──────────────────────────────────────────────────
+// Table: execution_history 
 // Stores every Run button press — useful for Day 12's history panel.
 db.exec(`
   CREATE TABLE IF NOT EXISTS execution_history (
@@ -34,7 +34,6 @@ db.exec(`
   )
 `);
 
-// ── Prepared statements ───────────────────────────────────────────────────────
 // Preparing once at startup is faster than preparing on every call.
 
 const saveSnapshot = db.prepare(`

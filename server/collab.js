@@ -25,7 +25,6 @@ class Room {
     this.conns    = new Map(); // ws -> Set<awarenessClientID>
     this.language = 'javascript'; // shared language state
 
-    // ── Load existing snapshot from SQLite ──────────────────────────────────
     // If this room was saved before (e.g. before a server restart), restore it.
     const snapshot = loadSnapshot.get(name);
     if (snapshot && snapshot.content) {
@@ -38,7 +37,6 @@ class Room {
       console.log(`Loaded snapshot for room: ${name} (${snapshot.content.length} chars)`);
     }
 
-    // ── Broadcast doc updates to all connected clients ──────────────────────
     this.doc.on('update', (update) => {
       const encoder = encoding.createEncoder();
       encoding.writeVarUint(encoder, messageSync);
@@ -46,7 +44,6 @@ class Room {
       this.broadcast(encoding.toUint8Array(encoder));
     });
 
-    // ── Broadcast awareness (cursors/presence) changes ──────────────────────
     this.awareness.on('update', ({ added, updated, removed }, origin) => {
       const changedClients = added.concat(updated, removed);
       if (origin instanceof Object && this.conns.has(origin)) {
@@ -63,7 +60,6 @@ class Room {
       this.broadcast(encoding.toUint8Array(encoder));
     });
 
-    // ── Periodic snapshot to SQLite ─────────────────────────────────────────
     // Every SNAPSHOT_INTERVAL ms, save the current text to the database.
     // This means at most 5 seconds of work is lost on a crash/restart.
     this.snapshotTimer = setInterval(() => {
@@ -161,8 +157,7 @@ function attachCollab(httpServer) {
         awarenessProtocol.removeAwarenessStates(room.awareness, Array.from(ids), null);
       }
 
-      // If the room is now empty, do a final snapshot and clean it up
-      // from memory — it'll be reloaded from SQLite if someone rejoins.
+      // If the room is now empty, do a final snapshot and clean it up from memory — it'll be reloaded from SQLite if someone rejoins.
       if (room.conns.size === 0) {
         room.destroy();
         rooms.delete(roomName);
