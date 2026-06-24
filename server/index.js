@@ -49,7 +49,7 @@ app.post("/api/run", (req, res) => {
 
   fs.writeFileSync(config.file, code);
 
-  const child = exec(config.run, { timeout: 5000 }, (error, stdout, stderr) => {
+  const child = exec(config.run, { timeout: 15000 }, (error, stdout, stderr) => {
     if (error) {
       saveExecution.run({ roomId: roomId || 'default-room', code, output: stderr || error.message, language });
       return res.status(400).json({ error: stderr || error.message });
