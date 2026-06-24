@@ -53,7 +53,7 @@ function RoomPage() {
     if (!code || !code.trim()) return;
     try {
       setIsSaving(true);
-      await fetch('${API}/api/save', {
+      await fetch(`${API}/api/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code, language }),
@@ -67,7 +67,7 @@ function RoomPage() {
     setOutput('Running...');
     setIsError(false);
     try {
-      const res  = await fetch('${API}/api/run', {
+      const res  = await fetch(`${API}/api/run`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code, language, roomId, stdin }), // roomId added
@@ -91,7 +91,7 @@ function RoomPage() {
     if (!code || !code.trim()) return;
     try {
       setIsSaving(true);
-      await fetch('${API}/api/save', {
+      await fetch(`${API}/api/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code, language }),
