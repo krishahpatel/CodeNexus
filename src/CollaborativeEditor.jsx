@@ -8,11 +8,11 @@ import './CollaborativeEditor.css';
 const USER_COLORS = ['#ff6b6b', '#4ecdc4', '#ffe66d', '#a78bfa', '#f97316', '#34d399'];
 const randomColor = () => USER_COLORS[Math.floor(Math.random() * USER_COLORS.length)];
 
-export default function CollaborativeEditor({ roomId, language = 'javascript', onCodeChange }) {
-  const [userName, setUserName]   = useState('');
-  const [joined, setJoined]       = useState(false);
+export default function CollaborativeEditor({ roomId, language = 'javascript', onCodeChange, onLanguageChange, readOnly = false }) {
+  const [joined, setJoined]       = useState(readOnly);
   const [users, setUsers]         = useState([]);
   const [connected, setConnected] = useState(false);
+  const [userName, setUserName] = useState(readOnly ? 'Viewer' : '');
 
   const docRef      = useRef(null);
   const providerRef = useRef(null);
@@ -36,6 +36,12 @@ export default function CollaborativeEditor({ roomId, language = 'javascript', o
     const updatePresence = () => {
       const states = Array.from(provider.awareness.getStates().values());
       setUsers(states.map((s) => s.user).filter(Boolean));
+
+      // Sync language — use the most recently changed one
+      const langState = states.find((s) => s.language);
+      if (langState && onLanguageChange) {
+        onLanguageChange(langState.language);
+      }
     };
     provider.awareness.on('change', updatePresence);
     provider.on('status', ({ status }) => setConnected(status === 'connected'));
@@ -47,6 +53,13 @@ export default function CollaborativeEditor({ roomId, language = 'javascript', o
       ydoc.destroy();
     };
   }, [joined, roomId]);
+
+  // Broadcast this user's current language to everyone in the room
+  useEffect(() => {
+    if (!joined || !providerRef.current) return;
+    providerRef.current.awareness.setLocalStateField('language', language);
+  }, [language, joined]);
+
 
   function handleEditorMount(editor) {
     const ydoc     = docRef.current;
@@ -75,7 +88,7 @@ export default function CollaborativeEditor({ roomId, language = 'javascript', o
   }
 
   // ── Name entry screen ──────────────────────────────────────────────────────
-  if (!joined) {
+  if (!joined && !readOnly) {
     return (
       <div className="join-screen">
         <div className="join-box">
@@ -123,7 +136,10 @@ export default function CollaborativeEditor({ roomId, language = 'javascript', o
         language={language}
         theme="vs-dark"
         onMount={handleEditorMount}
-        options={{ minimap: { enabled: false } }}
+        options={{
+          minimap: { enabled: false },
+          readOnly: readOnly,
+        }}
       />
     </div>
   );

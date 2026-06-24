@@ -1,4 +1,4 @@
-import { Routes, Route, useParams, useNavigate } from 'react-router-dom';
+import { Routes, Route, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import CollaborativeEditor from './CollaborativeEditor';
 import LandingPage from './LandingPage';
@@ -8,6 +8,8 @@ import './App.css';
 function RoomPage() {
   const { roomId } = useParams();
   const navigate   = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isViewer = searchParams.get('view') === '1';
 
   const [code, setCode]         = useState('');
   const [language, setLanguage] = useState('javascript');
@@ -102,6 +104,11 @@ function RoomPage() {
     navigator.clipboard.writeText(window.location.href);
   };
 
+  const copyViewLink = () => {
+    const base = window.location.href.split('?')[0]; // strip any existing query params first
+    navigator.clipboard.writeText(base + '?view=1');
+  };
+
   // Format unix timestamp to readable string
   const formatTime = (ts) => {
     return new Date(ts * 1000).toLocaleTimeString();
@@ -116,33 +123,45 @@ function RoomPage() {
 
         <div className="brand-title">CodeNexus</div>
 
-        <span className="room-id" title="Click to copy link" onClick={copyLink}>
-          📋 {roomId}
+        {/* Edit link — only for editors */}
+        {!isViewer && (
+          <span className="room-id" title="Click to copy edit link" onClick={copyLink}>
+            📋 {roomId}
+          </span>
+        )}
+
+        {/* View link — show for everyone, but label differs */}
+        <span className="room-id" title="Click to copy view-only link" onClick={copyViewLink}>
+          {isViewer ? '👁 Share view link' : '👁 View link'}
         </span>
 
-        <select
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-          className="language-select"
-        >
-          <option value="javascript">JavaScript</option>
-          <option value="python">Python</option>
-          <option value="c">C</option>
-          <option value="cpp">C++</option>
-        </select>
+        {!isViewer && (
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            className="language-select"
+          >
+            <option value="javascript">JavaScript</option>
+            <option value="python">Python</option>
+            <option value="c">C</option>
+            <option value="cpp">C++</option>
+          </select>
+        )}
 
         {isSaving && <span className="saving-text">Saving...</span>}
 
-        <button onClick={saveCode} className="btn btn-secondary">Save</button>
-        <button onClick={runCode}  className="btn btn-run">▶ Run</button>
+        {!isViewer && <button onClick={saveCode} className="btn btn-secondary">Save</button>}
+        {!isViewer && <button onClick={runCode}  className="btn btn-run">▶ Run</button>}
 
         {/* Toggle history panel */}
-        <button
-          className={`btn btn-secondary ${showHistory ? 'btn-active' : ''}`}
-          onClick={() => setShowHistory((prev) => !prev)}
-        >
-          📜 History
-        </button>
+        {!isViewer && (
+          <button
+            className={`btn btn-secondary ${showHistory ? 'btn-active' : ''}`}
+            onClick={() => setShowHistory((prev) => !prev)}
+          >
+            📜 History
+          </button>
+        )}
       </div>
 
       <div className="editor-container">
@@ -150,27 +169,33 @@ function RoomPage() {
           roomId={roomId}
           language={language}
           onCodeChange={(value) => setCode(value)}
+          onLanguageChange={(lang) => setLanguage(lang)}
+          readOnly={isViewer}
         />
       </div>
 
-      {/* ── Terminal output ── */}
-      <div className="terminal-wrapper">
-        <div className="terminal-header">Terminal Output</div>
-        <pre className={`terminal-output ${isError ? 'terminal-error' : ''}`}>
-          {output || 'Waiting for output...'}
-        </pre>
-      </div>
+      {/* ── Terminal output & stdin ── */}
+      {!isViewer && (
+        <div className="bottom-section">
+          <div className="terminal-wrapper">
+            <div className="terminal-header">Terminal Output</div>
+            <pre className={`terminal-output ${isError ? 'terminal-error' : ''}`}>
+              {output || 'Waiting for output...'}
+            </pre>
+          </div>
 
-      <div className="stdin-wrapper">
-        <div className="terminal-header">Input (stdin)</div>
-        <textarea
-          className="stdin-input"
-          placeholder="Provide input for your program here..."
-          value={stdin}
-          onChange={(e) => setStdin(e.target.value)}
-          rows={3}
-        />
-      </div>
+          <div className="stdin-wrapper">
+            <div className="terminal-header">Input (stdin)</div>
+            <textarea
+              className="stdin-input"
+              placeholder="Provide input for your program here..."
+              value={stdin}
+              onChange={(e) => setStdin(e.target.value)}
+              rows={3}
+            />
+          </div>
+        </div>
+      )}
 
       {/* ── Execution history panel ── */}
       {showHistory && (
