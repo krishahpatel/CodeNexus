@@ -119,7 +119,7 @@ export default function CollaborativeEditor({ roomId, language = 'javascript', o
       </div>
 
       <Editor
-        height="65vh"
+        height="100%"
         language={language}
         theme="vs-dark"
         onMount={handleEditorMount}

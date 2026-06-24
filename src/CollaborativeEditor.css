@@ -1,6 +1,7 @@
 .collab-editor {
   display: flex;
   flex-direction: column;
+  height: 100%;
   width: 100%;
 }
 
@@ -43,11 +44,13 @@
 
 /* ── Join screen ── */
 .join-screen {
+  position: fixed;        /* change from display:flex centering to fixed overlay */
+  inset: 0;               /* covers the entire viewport */
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 75vh;
   background: #1e1e1e;
+  z-index: 100;           /* sits on top of toolbar, terminal, everything */
 }
 
 .join-box {
