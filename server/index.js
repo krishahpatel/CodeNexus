@@ -35,16 +35,10 @@ app.post("/api/run", (req, res) => {
   }
 
   const fileMap = {
-    javascript: { file: "temp.js", run: "node temp.js" },
-    python: { file: "temp.py", run: "python temp.py" },
-    c: {
-      file: "temp.c",
-      run: "gcc temp.c -o temp.exe && temp.exe"
-    },
-    cpp: {
-      file: "temp.cpp",
-      run: "g++ temp.cpp -o temp.exe && temp.exe"
-    }
+    javascript: { file: "temp.js",  run: "node temp.js" },
+    python:     { file: "temp.py",  run: "python3 temp.py" },  
+    c:   { file: "temp.c",   run: "gcc temp.c -o temp.out && ./temp.out" },
+    cpp: { file: "temp.cpp", run: "g++ temp.cpp -o temp.out && ./temp.out" },
   };
 
   const config = fileMap[language];
